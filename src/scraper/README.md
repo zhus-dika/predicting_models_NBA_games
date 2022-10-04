@@ -10,3 +10,4 @@ python scraper.py -y 2019
 
 Результат:
 
+![Screenshot 2022-10-03 11 30 25 AM](https://user-images.githubusercontent.com/1524073/193713395-8c3fbd11-31ca-483e-b7e6-954a9a2f4b0f.png)
