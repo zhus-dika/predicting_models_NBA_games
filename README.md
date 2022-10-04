@@ -1,6 +1,6 @@
 # Предсказательные модели для игроков NBA :basketball:
 *Куратор: Мария Гольдштейн*
-![alt text](https://github.com/zhus-dika/predicting_models_NBA_games/blob/main/pictures/nba.jpeg?raw=true)
+![nba](https://user-images.githubusercontent.com/1524073/193713749-d0c6188e-20c3-43b0-8ecb-3d8792501ce1.jpeg)
 ## Возможные задачи:
 - Сбор и/или поиск подходящего датасета
 - По запросу выводить статистику по игроку / команде за выбранный период
