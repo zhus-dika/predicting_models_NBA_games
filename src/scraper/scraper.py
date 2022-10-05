@@ -26,6 +26,24 @@ def parse_arguments(argv):
 
     return int(arg_year)
 
+def parse_basic(year):
+    """Parses basic league information for a given year: parse_basic(year) -> DataFrame"""
+    url = 'https://www.basketball-reference.com/leagues/NBA_{}_per_game.html'.format(year)
+    # this is the html from the given url
+    html = urlopen(url)
+    soup = BeautifulSoup(html)
+    type(soup)
+    soup.findAll('tr', limit=2)
+    column_headers = [th.getText() for th in soup.findAll('tr', limit=2)[0].findAll('th')]
+    column_headers = column_headers[1:]
+    data_rows = soup.findAll('tr')[2:]
+    type(data_rows)
+    player_data = [[td.getText() for td in data_rows[i].findAll('td')]
+                for i in range(len(data_rows))]
+
+    basic = pd.DataFrame(player_data, columns=column_headers)
+    return basic
+
 def parse_advanced(year):
     """Parses advanced league information for a given year: parse_advanced(year) -> DataFrame"""
     url = "https://www.basketball-reference.com/leagues/NBA_{}_advanced.html".format(year)
@@ -46,11 +64,18 @@ def parse_advanced(year):
 
 if __name__ == "__main__":
     YEAR = parse_arguments(sys.argv)
+    basic = parse_basic(YEAR)
     advanced = parse_advanced(YEAR)
+
+    basic = basic[basic['Player'].notnull()]
+    basic = basic._convert(numeric = True)
+    basic = basic[:].fillna(0)
+    basic = basic.drop_duplicates(['Player'], keep = 'first')
 
     advanced = advanced[advanced['Player'].notnull()]
     advanced = advanced._convert(numeric = True)
     advanced = advanced[:].fillna(0)
     advanced = advanced.drop_duplicates(['Player'], keep = 'first')
 
-    advanced.to_csv('../../data/{}_advanced.csv'.format(YEAR), index=False)
+    stats = pd.merge(basic, advanced, on = 'Player')
+    stats.to_csv('../../data/{}_advanced_plus_basic.csv'.format(YEAR), index=False)
