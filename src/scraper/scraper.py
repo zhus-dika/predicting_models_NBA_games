@@ -26,9 +26,14 @@ def parse_arguments(argv):
 
     return int(arg_year)
 
-def parse_totals(year):
-    """Parses basic league information for a given year: parse_basic(year) -> DataFrame"""
+def fetch_data(year, advanced = False):
+     """Parses league information for a given year: fetch_data(year) -> DataFrame"""
+    
     url = 'https://www.basketball-reference.com/leagues/NBA_{}_totals.html'.format(year)
+
+    if advanced:
+        url = "https://www.basketball-reference.com/leagues/NBA_{}_advanced.html".format(year)
+
     # this is the html from the given url
     html = urlopen(url)
     soup = BeautifulSoup(html)
@@ -41,47 +46,24 @@ def parse_totals(year):
     player_data = [[td.getText() for td in data_rows[i].findAll('td')]
                 for i in range(len(data_rows))]
 
-    totals = pd.DataFrame(player_data, columns=column_headers)
-    return totals
+    data_frame = pd.DataFrame(player_data, columns=column_headers)
 
-def parse_advanced(year):
-    """Parses advanced league information for a given year: parse_advanced(year) -> DataFrame"""
-    url = "https://www.basketball-reference.com/leagues/NBA_{}_advanced.html".format(year)
-    # this is the html from the given url
-    html = urlopen(url)
-    soup = BeautifulSoup(html)
-    type(soup)
-    soup.findAll('tr', limit=2)
-    column_headers = [th.getText() for th in soup.findAll('tr', limit=2)[0].findAll('th')]
-    column_headers = column_headers[1:]
-    data_rows = soup.findAll('tr')[2:]
-    type(data_rows)
-    player_data = [[td.getText() for td in data_rows[i].findAll('td')]
-                for i in range(len(data_rows))]
-
-    advanced = pd.DataFrame(player_data, columns=column_headers)
-    return advanced
+     # clean-up data frame
+    data_frame = data_frame[totals['Player'].notnull()]
+    data_frame = data_frame._convert(numeric = True)
+    data_frame = data_frame[:].fillna(0)
+    data_frame = data_frame.drop_duplicates(['Player'], keep='first')
+    
+    return data_frame   
 
 if __name__ == "__main__":
     YEAR = parse_arguments(sys.argv)
 
     # download totals
-    totals = parse_totals(YEAR)
-
-    # clean-up data frame
-    totals = totals[totals['Player'].notnull()]
-    totals = totals._convert(numeric = True)
-    totals = totals[:].fillna(0)
-    totals = totals.drop_duplicates(['Player'], keep='first')
+    totals = fetch_data(YEAR)
 
     # download advanced
-    advanced = parse_advanced(YEAR)
-
-    # clean-up data frame
-    advanced = advanced[advanced['Player'].notnull()]
-    advanced = advanced._convert(numeric=True)
-    advanced = advanced[:].fillna(0)
-    advanced = advanced.drop_duplicates(['Player'], keep='first')
+    advanced = fetch_data(YEAR, True)
 
     # drop empty columns that are used for visual separation on the web-site
     advanced = advanced.drop(advanced.columns[[23, 18]],axis = 1)
