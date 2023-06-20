@@ -1,0 +1,4 @@
+[flake8]
+exclude = .git,.venv,.dvc,.ipynb_checkpoints
+max-complexity = 10
+max-line-length = 120
