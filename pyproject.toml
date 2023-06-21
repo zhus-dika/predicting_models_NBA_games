@@ -22,6 +22,10 @@ dvc = "^3.1.0"
 dvc-gdrive = "^2.19.2"
 beautifulsoup4 = "^4.12.2"
 
+[tool.poetry.group.app.dependencies]
+flask = "^2.3.2"
+onnxruntime = "^1.15.1"
+
 [tool.yapfignore]
 ignore_patterns = [
   ".git",

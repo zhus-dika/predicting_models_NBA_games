@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: nba-app
+    ports:
+      - 5000:5000
+    entrypoint: ["python3", "-m", "src.app.app"]
+
+  prometheus:
+    image: prom/prometheus:v2.44.0
+    container_name: nba-prometheus
+    ports:
+      - 9090:9090
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: nba-grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
