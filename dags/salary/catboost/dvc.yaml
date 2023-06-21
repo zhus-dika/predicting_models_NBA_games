@@ -1,0 +1,100 @@
+vars:
+- wd: ../../..
+- ../../../src/salary/consts.py
+- ../../../src/salary/params.py
+
+stages:
+  prepare:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.prepare
+      --test-size ${Preprocessing.test_size}
+      --seed ${Base.seed}
+    deps:
+    - ${RAW_DIR}
+    - src/salary/consts.py
+    - src/salary/prepare.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.seed
+      - Preprocessing.test_size
+    outs:
+    - data/interim/salary/:
+        cache: false
+  featurize:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.featurize
+      --target ${Base.target}
+    deps:
+    - ${INTERIM_DIR}
+    - src/salary/consts.py
+    - src/salary/featurize.py
+    - src/salary/params.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - data/processed/salary/:
+        cache: false
+    - dags/salary/preprocessor.pkl:
+        cache: false
+  train:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.train catboost
+      --target ${Base.target}
+      --seed ${Base.seed}
+      --valid-size ${Catboost.valid_size}
+      --early-stopping-rounds ${Catboost.early_stopping_rounds}
+    deps:
+    - ${PROCESSED_DIR}
+    - src/salary/consts.py
+    - src/salary/train.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+      - Base.seed
+      - Catboost.valid_size
+      - Catboost.early_stopping_rounds
+    outs:
+    - models/salary/catboost.cbm:
+        cache: false
+  evaluate:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.evaluate catboost
+      --target ${Base.target}
+    deps:
+    - models/salary/catboost.cbm
+    - data/processed/salary/
+    - src/salary/consts.py
+    - src/salary/evaluate.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - dags/salary/catboost/metrics.json:
+        cache: false
+  make_onnx:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.make_onnx catboost
+      --target ${Base.target}
+    deps:
+    - dags/salary/preprocessor.pkl
+    - data/interim/salary/
+    - models/salary/catboost.cbm
+    - src/salary/make_onnx.py
+    - src/salary/consts.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - models/salary/catboost.onnx:
+        cache: false
