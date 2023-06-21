@@ -21,6 +21,7 @@ yapf = "^0.40.1"
 dvc = "^3.1.0"
 dvc-gdrive = "^2.19.2"
 beautifulsoup4 = "^4.12.2"
+pytest = "^7.3.2"
 
 [tool.poetry.group.app.dependencies]
 flask = "^2.3.2"
@@ -36,6 +37,10 @@ ignore_patterns = [
 
 [tool.yapf]
 based_on_style = "pep8"
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+pythonpath = "src"
 
 [build-system]
 requires = ["poetry-core"]

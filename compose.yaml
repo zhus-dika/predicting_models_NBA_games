@@ -4,7 +4,8 @@ services:
     container_name: nba-app
     ports:
       - 5000:5000
-    entrypoint: ["python3", "-m", "src.app.app"]
+    depends_on:
+      - prometheus
 
   prometheus:
     image: prom/prometheus:v2.44.0

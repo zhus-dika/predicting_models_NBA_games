@@ -20,7 +20,6 @@ def cli():
 @click.option("--target", type=str, required=True)
 def evaluate_catboost(in_model_path: str, in_test_path: str, out_metrics_path: str, target: str) -> None:
     regressor = CatBoostRegressor().load_model(in_model_path)
-    assert regressor.is_fitted()
 
     x, y = utils.load_features_target(in_test_path, target)
     pred = regressor.predict(x)

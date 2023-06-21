@@ -6,6 +6,7 @@ import json
 from pandas import DataFrame, Series, read_csv
 import joblib
 from catboost.utils import convert_to_onnx_object
+from onnx import ModelProto
 from onnx.helper import get_attribute_value
 
 
@@ -45,8 +46,13 @@ def load_features_target(path: str, target: str) -> (DataFrame, Series):
 
 
 def save_metrics(path: str, metrics: dict[str, float]) -> None:
-    with open(path, "w") as fp:
-        json.dump(metrics, fp)
+    with open(path, "w") as f:
+        json.dump(metrics, f)
+
+
+def load_metrics(path: str) -> dict[str, float]:
+    with open(path, "rb") as f:
+        return json.load(f)
 
 
 def make_dir(dir_path: str) -> Path:
@@ -69,6 +75,12 @@ def load_preprocessor(path: str) -> Any:
 
 def remove_if_exists(path: str) -> None:
     Path(path).unlink(missing_ok=True)
+
+
+def save_onnx(onx: ModelProto, path: str) -> None:
+    remove_if_exists(path)
+    with open(path, "wb") as f:
+        f.write(onx.SerializeToString())
 
 
 # http://onnx.ai/sklearn-onnx/auto_tutorial/plot_gexternal_catboost.html

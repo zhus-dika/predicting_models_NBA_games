@@ -24,10 +24,12 @@ def cli():
               default=consts.CATBOOST_MODEL_PATH)
 @click.option("--in-data-path", type=click.Path(exists=True, dir_okay=False, readable=True),
               default=consts.PREPARED_TEST_PATH)
+@click.option("--in-metrics-path", type=click.Path(exists=True, dir_okay=False, readable=True),
+              default=consts.CATBOOST_METRICS_PATH)
 @click.option("--out-onnx-path", type=click.Path(dir_okay=False), default=consts.CATBOOST_ONNX_MODEL_PATH)
 @click.option("--target", type=str, required=True)
-def catboost_to_onnx(in_preprocessor_path: str, in_model_path: str, in_data_path: str, out_onnx_path: str,
-                     target: str) -> None:
+def catboost_to_onnx(in_preprocessor_path: str, in_model_path: str, in_data_path: str, in_metrics_path: str,
+                     out_onnx_path: str, target: str) -> None:
     preprocessor = utils.load_preprocessor(in_preprocessor_path)
     model = CatBoostRegressor().load_model(in_model_path)
     pipe = Pipeline(steps=[
@@ -52,12 +54,12 @@ def catboost_to_onnx(in_preprocessor_path: str, in_model_path: str, in_data_path
     meta_name = onx.metadata_props.add()
     meta_name.key, meta_name.value = "name", os.path.basename(out_onnx_path)
 
-    #meta_score = onx.metadata_props.add()
-    #meta_score.key, meta_score.value = "score", str(round(score, 3))
+    metrics = utils.load_metrics(in_metrics_path)
+    for key, value in metrics.items():
+        meta_score = onx.metadata_props.add()
+        meta_score.key, meta_score.value = key, str(round(value, 3))
 
-    utils.remove_if_exists(out_onnx_path)
-    with open(out_onnx_path, "wb") as f:
-        f.write(onx.SerializeToString())
+    utils.save_onnx(onx, out_onnx_path)
 
 
 if __name__ == "__main__":
