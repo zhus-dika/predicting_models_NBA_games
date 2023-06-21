@@ -1,0 +1,1 @@
+{"loss_function": "RMSE", "learning_rate": 0.05713514134395627, "l2_leaf_reg": 0.041772130900951915, "colsample_bylevel": 0.037515378557323585, "depth": 9, "boosting_type": "Ordered", "bootstrap_type": "MVS", "min_data_in_leaf": 9, "one_hot_max_size": 7, "target": "SalaryAdj", "metric_name": "r2", "valid_size": 0.25, "early_stopping_rounds": 100, "seed": 42}

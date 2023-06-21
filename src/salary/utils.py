@@ -8,6 +8,7 @@ import joblib
 from catboost.utils import convert_to_onnx_object
 from onnx import ModelProto
 from onnx.helper import get_attribute_value
+from sklearn.metrics import r2_score, mean_absolute_error
 
 
 def fix_column_name(name: str) -> str:
@@ -24,8 +25,9 @@ def fix_column_names(columns: list[str]) -> list[str]:
     return list(map(fix_column_name, columns))
 
 
-def fix_prefix_remainder(data: DataFrame, column: str) -> DataFrame:
-    data.rename(columns={"remainder__" + column: column}, inplace=True)
+def remove_prefix_remainder(data: DataFrame) -> DataFrame:
+    columns = {name: name.removeprefix("remainder__") for name in data.columns.values if name.startswith("remainder__")}
+    data.rename(columns=columns, inplace=True)
     return data
 
 
@@ -55,6 +57,19 @@ def load_metrics(path: str) -> dict[str, float]:
         return json.load(f)
 
 
+def eval_metrics(y_true: Any, y_pred: Any) -> dict[str, float]:
+    metrics = {
+        "r2": r2_score(y_true, y_pred),
+        "mae": mean_absolute_error(y_true, y_pred)
+    }
+    return metrics
+
+
+def save_params(path: str, params: dict) -> None:
+    with open(path, "w") as f:
+        json.dump(params, f)
+
+
 def make_dir(dir_path: str) -> Path:
     path = Path(dir_path)
     path.mkdir(parents=True, exist_ok=True)
@@ -63,6 +78,10 @@ def make_dir(dir_path: str) -> Path:
 
 def get_extension(path: str) -> str:
     return Path(path).stem
+
+
+def get_dir_path(path: str) -> str:
+    return os.path.dirname(path)
 
 
 def save_preprocessor(preprocessor: Any, path: str) -> None:

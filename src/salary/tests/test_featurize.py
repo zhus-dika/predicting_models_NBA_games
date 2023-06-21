@@ -23,8 +23,8 @@ def test_processed_train_test(config: Preprocessing):
     assert len(test) == len(utils.load_data(consts.PREPARED_TEST_PATH))
 
 
-def test_preprocessor(config: Preprocessing):
+def test_preprocessor():
     preprocessor = utils.load_preprocessor(consts.PREPROCESSOR_PATH)
     in_test = utils.load_data(consts.PREPARED_TRAIN_PATH)
     out_test = utils.load_data(consts.PROCESSED_TRAIN_PATH)
-    assert numpy.allclose(utils.fix_prefix_remainder(preprocessor.transform(in_test), config.target), out_test)
+    assert numpy.allclose(utils.remove_prefix_remainder(preprocessor.transform(in_test)), out_test)

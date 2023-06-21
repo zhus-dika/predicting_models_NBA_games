@@ -10,16 +10,16 @@ stages:
       nfiles: 13
     - path: src/salary/consts.py
       hash: md5
-      md5: 1e33ff7dbcf3f398f1ca5a3aa838727f
-      size: 803
+      md5: b67955c74945670a11c7e6d8ca3527d2
+      size: 853
     - path: src/salary/prepare.py
       hash: md5
       md5: 95682eb7e98f6c2a4c0730fc4b5b19c0
       size: 1767
     - path: src/salary/utils.py
       hash: md5
-      md5: a8af29d129ad88f0900ce9e88f48e561
-      size: 3436
+      md5: 6952769a0ebff51896903275b40134a3
+      size: 3961
     params:
       src/salary/params.py:
         Base.seed: 42
@@ -40,20 +40,20 @@ stages:
       nfiles: 2
     - path: src/salary/consts.py
       hash: md5
-      md5: 1e33ff7dbcf3f398f1ca5a3aa838727f
-      size: 803
+      md5: b67955c74945670a11c7e6d8ca3527d2
+      size: 853
     - path: src/salary/featurize.py
       hash: md5
-      md5: 24d4f48fe916afc02b794b84f0adc41c
-      size: 2385
+      md5: 178c9582e646bf9fab58ac3daf7acbd2
+      size: 2375
     - path: src/salary/params.py
       hash: md5
-      md5: f0d7805adb1e5c8ad398dad982b38b02
-      size: 814
+      md5: f8e365af2af2a043c962f206b946649a
+      size: 939
     - path: src/salary/utils.py
       hash: md5
-      md5: a8af29d129ad88f0900ce9e88f48e561
-      size: 3436
+      md5: 6952769a0ebff51896903275b40134a3
+      size: 3961
     params:
       src/salary/params.py:
         Base.target: SalaryAdj
@@ -68,8 +68,8 @@ stages:
       size: 3005070
       nfiles: 2
   train:
-    cmd: python -m src.salary.train catboost --target SalaryAdj --seed 42 --valid-size
-      0.2 --early-stopping-rounds 100
+    cmd: python -m src.salary.train catboost --target SalaryAdj --seed 42 --metric-name
+      r2 --valid-size 0.25 --early-stopping-rounds 100 --n-trials 3 --timeout 1000
     deps:
     - path: data/processed/salary
       hash: md5
@@ -78,27 +78,30 @@ stages:
       nfiles: 2
     - path: src/salary/consts.py
       hash: md5
-      md5: 1e33ff7dbcf3f398f1ca5a3aa838727f
-      size: 803
+      md5: b67955c74945670a11c7e6d8ca3527d2
+      size: 853
     - path: src/salary/train.py
       hash: md5
-      md5: bba3b5fb560d7340e8571689eda61e13
-      size: 1466
+      md5: c680d1b13a33e3b995b97369be5fb0da
+      size: 4683
     - path: src/salary/utils.py
       hash: md5
-      md5: a8af29d129ad88f0900ce9e88f48e561
-      size: 3436
+      md5: 6952769a0ebff51896903275b40134a3
+      size: 3961
     params:
       src/salary/params.py:
         Base.seed: 42
         Base.target: SalaryAdj
         Catboost.early_stopping_rounds: 100
-        Catboost.valid_size: 0.2
+        Catboost.metric_name: r2
+        Catboost.n_trials: 3
+        Catboost.timeout: 1000
+        Catboost.valid_size: 0.25
     outs:
     - path: models/salary/catboost.cbm
       hash: md5
-      md5: 80d1f4655ea5ba8ad6772b10527b0530
-      size: 662352
+      md5: 4e1b976b2844f73646feaac6dd0ddc02
+      size: 2150136
   evaluate:
     cmd: python -m src.salary.evaluate catboost --target SalaryAdj
     deps:
@@ -109,28 +112,28 @@ stages:
       nfiles: 2
     - path: models/salary/catboost.cbm
       hash: md5
-      md5: 80d1f4655ea5ba8ad6772b10527b0530
-      size: 662352
+      md5: 4e1b976b2844f73646feaac6dd0ddc02
+      size: 2150136
     - path: src/salary/consts.py
       hash: md5
-      md5: 1e33ff7dbcf3f398f1ca5a3aa838727f
-      size: 803
+      md5: b67955c74945670a11c7e6d8ca3527d2
+      size: 853
     - path: src/salary/evaluate.py
       hash: md5
-      md5: 2b1b1231d3acbaa8ef13810af66aad79
-      size: 1068
+      md5: e17a5bb5301387d0736b981ab3e67e97
+      size: 1020
     - path: src/salary/utils.py
       hash: md5
-      md5: a8af29d129ad88f0900ce9e88f48e561
-      size: 3436
+      md5: 6952769a0ebff51896903275b40134a3
+      size: 3961
     params:
       src/salary/params.py:
         Base.target: SalaryAdj
     outs:
     - path: dags/salary/catboost/metrics.json
       hash: md5
-      md5: 3f97a9a328854b706d1cf86ef1643ad4
-      size: 26
+      md5: 0575bb51f7c1aa4a4dd0c7c43942e3d5
+      size: 51
   make_onnx:
     cmd: python -m src.salary.make_onnx catboost --target SalaryAdj
     deps:
@@ -145,25 +148,25 @@ stages:
       nfiles: 2
     - path: models/salary/catboost.cbm
       hash: md5
-      md5: 80d1f4655ea5ba8ad6772b10527b0530
-      size: 662352
+      md5: 4e1b976b2844f73646feaac6dd0ddc02
+      size: 2150136
     - path: src/salary/consts.py
       hash: md5
-      md5: 1e33ff7dbcf3f398f1ca5a3aa838727f
-      size: 803
+      md5: b67955c74945670a11c7e6d8ca3527d2
+      size: 853
     - path: src/salary/make_onnx.py
       hash: md5
       md5: 44b010020e7f6b16dfa970be3d2503ca
       size: 2726
     - path: src/salary/utils.py
       hash: md5
-      md5: a8af29d129ad88f0900ce9e88f48e561
-      size: 3436
+      md5: 6952769a0ebff51896903275b40134a3
+      size: 3961
     params:
       src/salary/params.py:
         Base.target: SalaryAdj
     outs:
     - path: models/salary/catboost.onnx
       hash: md5
-      md5: 5e109017ec87d9722392587c6d6dd6ac
-      size: 2834455
+      md5: 4706af28a4eea8ac8002d058007e6422
+      size: 10254148

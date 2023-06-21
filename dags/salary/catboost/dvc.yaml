@@ -47,8 +47,11 @@ stages:
       python -m src.salary.train catboost
       --target ${Base.target}
       --seed ${Base.seed}
+      --metric-name ${Catboost.metric_name}
       --valid-size ${Catboost.valid_size}
       --early-stopping-rounds ${Catboost.early_stopping_rounds}
+      --n-trials ${Catboost.n_trials}
+      --timeout ${Catboost.timeout}
     deps:
     - ${PROCESSED_DIR}
     - src/salary/consts.py
@@ -58,8 +61,11 @@ stages:
     - src/salary/params.py:
       - Base.target
       - Base.seed
+      - Catboost.metric_name
       - Catboost.valid_size
       - Catboost.early_stopping_rounds
+      - Catboost.n_trials
+      - Catboost.timeout
     outs:
     - models/salary/catboost.cbm:
         cache: false

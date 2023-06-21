@@ -18,6 +18,7 @@ PROCESSED_TEST_PATH: Final = f"{PROCESSED_DIR}/test_features_target.csv"
 DAGS_DIR: Final = "dags/salary"
 MODELS_DIR: Final = "models/salary"
 
+CATBOOST_DAGS_DIR: Final = f"{DAGS_DIR}/catboost"
 CATBOOST_MODEL_PATH: Final = f"{MODELS_DIR}/catboost.cbm"
-CATBOOST_METRICS_PATH: Final = f"{DAGS_DIR}/catboost/metrics.json"
+CATBOOST_METRICS_PATH: Final = f"{CATBOOST_DAGS_DIR}/metrics.json"
 CATBOOST_ONNX_MODEL_PATH: Final = f"{MODELS_DIR}/catboost.onnx"

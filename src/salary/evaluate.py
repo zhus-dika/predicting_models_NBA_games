@@ -1,6 +1,5 @@
 import click
 from catboost import CatBoostRegressor
-from sklearn.metrics import r2_score
 
 from . import consts, utils
 
@@ -24,9 +23,7 @@ def evaluate_catboost(in_model_path: str, in_test_path: str, out_metrics_path: s
     x, y = utils.load_features_target(in_test_path, target)
     pred = regressor.predict(x)
 
-    r2 = r2_score(y, pred)
-
-    metrics = {"r2": r2}
+    metrics = utils.eval_metrics(y, pred)
     utils.save_metrics(out_metrics_path, metrics=metrics)
 
 

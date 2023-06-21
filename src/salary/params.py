@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Optional
 
 from . import utils
 
@@ -24,5 +25,8 @@ class Preprocessing(Base):
 
 @dataclass(frozen=True)
 class Catboost(Base):
-    valid_size: float = 0.2
+    metric_name: str = "r2"
+    valid_size: float = 0.25
     early_stopping_rounds: int = 100
+    n_trials: Optional[int] = 100
+    timeout: Optional[float] = 1000

@@ -41,8 +41,8 @@ def process(train: DataFrame, test: DataFrame, numeric_cols: list[str], cat_cols
     preprocessor.set_output(transform="pandas")
 
     cols = numeric_cols + cat_cols + [target]
-    train_features_target = utils.fix_prefix_remainder(preprocessor.fit_transform(train[cols]), target)
-    test_features_target = utils.fix_prefix_remainder(preprocessor.transform(test[cols]), target)
+    train_features_target = utils.remove_prefix_remainder(preprocessor.fit_transform(train[cols]))
+    test_features_target = utils.remove_prefix_remainder(preprocessor.transform(test[cols]))
 
     return preprocessor, train_features_target, test_features_target
 
