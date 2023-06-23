@@ -1,30 +1,84 @@
-from flask import Flask, request, make_response, jsonify
+from pathlib import Path
+from subprocess import check_output
 
-from .salary_pipeline import SalaryPipeline
+from flask import request, make_response, jsonify, flash, redirect
+from werkzeug.utils import secure_filename
+from mlflow.server import app
+
+from .salary_model import SalaryModel
 from ..salary import consts
 
 
-app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 
 
-@app.route("/forward/", methods=["POST"])
-def forward():
+@app.route("/<name>/predict", methods=["POST"])
+def predict(name: str):
     try:
         if request.headers.get("Content-Type") == "application/json":
-            pipe = SalaryPipeline(consts.CATBOOST_ONNX_MODEL_PATH)
-            y = pipe.predict(request.json)
+            model = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
+            y = model.predict(request.json)
             return jsonify({y.name: y.to_list()})
     except:
         pass
     return make_response("bad request", 400)
 
 
-@app.route("/metadata/", methods=["GET"])
-def metadata():
+@app.route("/<name>/metadata", methods=["GET"])
+def metadata(name: str):
     try:
-        pipe = SalaryPipeline(consts.CATBOOST_ONNX_MODEL_PATH)
+        pipe = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
         meta = pipe.get_metadata()
         return jsonify(meta)
+    except:
+        return make_response("bad request", 400)
+
+
+@app.route("/upload", methods=["GET", "POST"])
+def upload():
+    if request.method == "GET":
+        return f"""
+        <!doctype html>
+        <title>Upload</title>
+        <h1>Upload file: [year]{consts.RAW_FILENAME_SUFFIX}/h1>
+        <form method=post enctype=multipart/form-data>
+          <input type=file name=file>
+          <input type=submit value=Upload>
+        </form>
+        """
+
+    if "file" not in request.files:
+        flash("No file part")
+        return redirect(request.url)
+
+    file = request.files["file"]
+
+    if not file or file.filename == "":
+        flash("No selected file")
+        return redirect(request.url)
+
+    try:
+        filename = secure_filename(file.filename)
+        suffix = consts.RAW_FILENAME_SUFFIX
+
+        if not filename.endswith(suffix) or 1990 < int(filename.removesuffix(suffix)) > 2030:
+            flash("Invalid file name")
+            return redirect(request.url)
+
+        path = Path(consts.RAW_DIR).joinpath(filename)
+        file.save(path)
+        return redirect(request.url)
+    except:
+        pass
+
+    return make_response("bad request", 400)
+
+
+@app.route("/<name>/repro", methods=["GET"])
+def repro(name: str):
+    try:
+        dag = f"{consts.DAGS_DIR}/{secure_filename(name)}/dvc.yaml"
+        return check_output(["dvc", "repro", "-f", dag]).decode("utf-8")
     except:
         return make_response("bad request", 400)
 

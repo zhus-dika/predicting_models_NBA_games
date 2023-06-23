@@ -28,5 +28,5 @@ class Catboost(Base):
     metric_name: str = "r2"
     valid_size: float = 0.25
     early_stopping_rounds: int = 100
-    n_trials: Optional[int] = 100
+    n_trials: Optional[int] = 10
     timeout: Optional[float] = 1000

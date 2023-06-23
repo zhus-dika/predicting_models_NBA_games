@@ -34,10 +34,9 @@ def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_
     x, y = utils.load_features_target(in_train_path, target=target)
     x_train, x_valid, y_train, y_valid = train_test_split(x, y, test_size=valid_size, shuffle=True, random_state=seed)
 
-    tracking_uri = "http://localhost:5000"
-    mlflow.set_tracking_uri(uri=tracking_uri)
-    mlflow_callback = MLflowCallback(tracking_uri=tracking_uri, metric_name=metric_name, mlflow_kwargs={"nested": True},
-                                     create_experiment=False)
+    mlflow.set_tracking_uri(uri=consts.MLFLOW_TRACKING_URI)
+    mlflow_callback = MLflowCallback(tracking_uri=consts.MLFLOW_TRACKING_URI, metric_name=metric_name,
+                                     mlflow_kwargs={"nested": True}, create_experiment=False)
 
     @mlflow_callback.track_in_mlflow()
     def objective(trial):
@@ -97,7 +96,6 @@ def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_
 
         mlflow.log_params(best_params)
         mlflow.log_metrics(utils.eval_metrics(y_valid, pred))
-        mlflow.log_artifact(f"{consts.CATBOOST_DAGS_DIR}/dvc.yaml")
 
         signature = infer_signature(x_valid, pred)
         mlflow.catboost.log_model(regressor, artifact_path="salary/catboost", signature=signature)

@@ -7,7 +7,7 @@ from mlprodict.onnx_conv import get_inputs_from_data
 from ..salary.params import Base
 
 
-class SalaryPipeline:
+class SalaryModel:
     def __init__(self, path: str):
         self.path = path
 

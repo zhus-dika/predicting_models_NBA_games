@@ -1,6 +1,8 @@
 from typing import Final
 
 
+MLFLOW_TRACKING_URI = "http://localhost:5000"
+
 RAW_DIR: Final = "data/raw/advanced_plus_totals"
 RAW_FILENAME_SUFFIX: Final = "_advanced_plus_totals.csv"
 
@@ -19,6 +21,7 @@ DAGS_DIR: Final = "dags/salary"
 MODELS_DIR: Final = "models/salary"
 
 CATBOOST_DAGS_DIR: Final = f"{DAGS_DIR}/catboost"
+CATBOOST_DAGS_PATH: Final = f"{CATBOOST_DAGS_DIR}/dvc.yaml"
 CATBOOST_MODEL_PATH: Final = f"{MODELS_DIR}/catboost.cbm"
 CATBOOST_METRICS_PATH: Final = f"{CATBOOST_DAGS_DIR}/metrics.json"
 CATBOOST_ONNX_MODEL_PATH: Final = f"{MODELS_DIR}/catboost.onnx"
