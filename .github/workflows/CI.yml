@@ -19,7 +19,7 @@ jobs:
           poetry install --no-interaction
       - name: DVC get data
         run: |
-          poetry run dvc remote modify nba_ml --local gdrive_use_service_account true
+          poetry run dvc remote modify predicting_models_nba_games --local gdrive_use_service_account true
           poetry run dvc pull
         env:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
