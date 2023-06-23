@@ -11,7 +11,7 @@ def parse_arguments(argv):
 
     try:
         opts, args = getopt.getopt(argv[1:], "hy:", ["help", "year="])
-    except:
+    except getopt.GetoptError:
         print(arg_help)
         sys.exit(2)
 
@@ -82,7 +82,7 @@ def fetch_salaries(year):
 
     data_frame = pd.DataFrame(player_data, columns=['Rank', 'Player', 'Salary', 'SalaryAdj'])
     data_frame = data_frame.drop(data_frame.columns[[0]], axis=1)
-    data_frame[data_frame.columns[1:]] = data_frame[data_frame.columns[1:]].replace('[\$,]', '', regex=True)\
+    data_frame[data_frame.columns[1:]] = data_frame[data_frame.columns[1:]].replace(r'[\$,]', '', regex=True) \
         .astype(float)
 
     data_frame = clean_data_frame(data_frame)

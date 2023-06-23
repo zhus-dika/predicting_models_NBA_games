@@ -11,7 +11,7 @@ INTERIM_DIR: Final = "data/interim/salary"
 PREPARED_TRAIN_PATH: Final = f"{INTERIM_DIR}/train.csv"
 PREPARED_TEST_PATH: Final = f"{INTERIM_DIR}/test.csv"
 
-PREPROCESSOR_PATH: Final = f"dags/salary/preprocessor.pkl"
+PREPROCESSOR_PATH: Final = "dags/salary/preprocessor.pkl"
 
 PROCESSED_DIR: Final = "data/processed/salary"
 PROCESSED_TRAIN_PATH: Final = f"{PROCESSED_DIR}/train_features_target.csv"

@@ -14,24 +14,19 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1000 * 1000
 
 @app.route("/<name>/predict", methods=["POST"])
 def predict(name: str):
-    try:
-        if request.headers.get("Content-Type") == "application/json":
-            model = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
-            y = model.predict(request.json)
-            return jsonify({y.name: y.to_list()})
-    except:
-        pass
+    if request.headers.get("Content-Type") == "application/json":
+        model = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
+        y = model.predict(request.json)
+        return jsonify({y.name: y.to_list()})
+
     return make_response("bad request", 400)
 
 
 @app.route("/<name>/metadata", methods=["GET"])
 def metadata(name: str):
-    try:
-        pipe = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
-        meta = pipe.get_metadata()
-        return jsonify(meta)
-    except:
-        return make_response("bad request", 400)
+    model = SalaryModel(f"{consts.MODELS_DIR}/{secure_filename(name)}.onnx")
+    meta = model.get_metadata()
+    return jsonify(meta)
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -57,30 +52,22 @@ def upload():
         flash("No selected file")
         return redirect(request.url)
 
-    try:
-        filename = secure_filename(file.filename)
-        suffix = consts.RAW_FILENAME_SUFFIX
+    filename = secure_filename(file.filename)
+    suffix = consts.RAW_FILENAME_SUFFIX
 
-        if not filename.endswith(suffix) or 1990 < int(filename.removesuffix(suffix)) > 2030:
-            flash("Invalid file name")
-            return redirect(request.url)
-
-        path = Path(consts.RAW_DIR).joinpath(filename)
-        file.save(path)
+    if not filename.endswith(suffix) or 1990 < int(filename.removesuffix(suffix)) > 2030:
+        flash("Invalid file name")
         return redirect(request.url)
-    except:
-        pass
 
-    return make_response("bad request", 400)
+    path = Path(consts.RAW_DIR).joinpath(filename)
+    file.save(path)
+    return redirect(request.url)
 
 
 @app.route("/<name>/repro", methods=["GET"])
 def repro(name: str):
-    try:
-        dag = f"{consts.DAGS_DIR}/{secure_filename(name)}/dvc.yaml"
-        return check_output(["dvc", "repro", "-f", dag]).decode("utf-8")
-    except:
-        return make_response("bad request", 400)
+    dag = f"{consts.DAGS_DIR}/{secure_filename(name)}/dvc.yaml"
+    return check_output(["dvc", "repro", "-f", dag]).decode("utf-8")
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ permissions:
   contents: read
 jobs:
   tests:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,13 +18,13 @@ jobs:
         run: |
           poetry check
           poetry install --no-interaction
-      - name: DVC get data
-        run: |
-          poetry run dvc remote modify predicting_models_nba_games --local gdrive_use_service_account true
-          poetry run dvc pull
+      - name: Run pre-commit
+        run: poetry run pre-commit run --all-files --verbose
+      - name: Pull DVC data
+        run: poetry run dvc pull
         env:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
-      - name: DVC run dags
+      - name: Run DVC pipelines
         run: poetry run dvc repro -f dags/salary/catboost/dvc.yaml
       - name: Run tests
         run: poetry run pytest
