@@ -8,6 +8,8 @@ stages:
     wdir: ${wd}
     cmd: >-
       python -m src.salary.prepare
+      --out-train-path ${CB_PREPARED_TRAIN_PATH}
+      --out-test-path ${CB_PREPARED_TEST_PATH}
       --test-size ${Preprocessing.test_size}
       --seed ${Base.seed}
     deps:
@@ -20,26 +22,26 @@ stages:
       - Base.seed
       - Preprocessing.test_size
     outs:
-    - data/interim/salary/:
+    - ${CB_PREPARED_TRAIN_PATH}:
         cache: false
-  featurize:
+    - ${CB_PREPARED_TEST_PATH}:
+        cache: false
+  preprocess:
     wdir: ${wd}
-    cmd: >-
-      python -m src.salary.featurize
-      --target ${Base.target}
+    cmd: python -m src.salary.preprocess catboost
     deps:
-    - ${INTERIM_DIR}
+    - ${CB_PREPARED_TRAIN_PATH}
+    - ${CB_PREPARED_TEST_PATH}
     - src/salary/consts.py
-    - src/salary/featurize.py
+    - src/salary/preprocess.py
     - src/salary/params.py
     - src/salary/utils.py
-    params:
-    - src/salary/params.py:
-      - Base.target
     outs:
-    - data/processed/salary/:
+    - ${CB_PROCESSED_TRAIN_PATH}:
         cache: false
-    - dags/salary/preprocessor.pkl:
+    - ${CB_PROCESSED_TEST_PATH}:
+        cache: false
+    - ${CB_PREPROCESSOR_PATH}:
         cache: false
   train:
     wdir: ${wd}
@@ -53,7 +55,8 @@ stages:
       --n-trials ${Catboost.n_trials}
       --timeout ${Catboost.timeout}
     deps:
-    - ${PROCESSED_DIR}
+    - ${CB_PROCESSED_TRAIN_PATH}
+    - ${CB_PROCESSED_TEST_PATH}
     - src/salary/consts.py
     - src/salary/train.py
     - src/salary/utils.py
@@ -67,7 +70,9 @@ stages:
       - Catboost.n_trials
       - Catboost.timeout
     outs:
-    - models/salary/catboost.cbm:
+    - ${CB_MODEL_PATH}:
+        cache: false
+    - ${CB_TRAIN_PARAMS_PATH}:
         cache: false
   evaluate:
     wdir: ${wd}
@@ -75,8 +80,8 @@ stages:
       python -m src.salary.evaluate catboost
       --target ${Base.target}
     deps:
-    - models/salary/catboost.cbm
-    - data/processed/salary/
+    - ${CB_MODEL_PATH}
+    - ${CB_PROCESSED_TEST_PATH}
     - src/salary/consts.py
     - src/salary/evaluate.py
     - src/salary/utils.py
@@ -84,7 +89,7 @@ stages:
     - src/salary/params.py:
       - Base.target
     outs:
-    - dags/salary/catboost/metrics.json:
+    - ${CB_METRICS_PATH}:
         cache: false
   make_onnx:
     wdir: ${wd}
@@ -92,9 +97,9 @@ stages:
       python -m src.salary.make_onnx catboost
       --target ${Base.target}
     deps:
-    - dags/salary/preprocessor.pkl
-    - data/interim/salary/
-    - models/salary/catboost.cbm
+    - ${CB_PREPROCESSOR_PATH}
+    - ${INTERIM_DIR}
+    - ${CB_MODEL_PATH}
     - src/salary/make_onnx.py
     - src/salary/consts.py
     - src/salary/utils.py
@@ -102,5 +107,5 @@ stages:
     - src/salary/params.py:
       - Base.target
     outs:
-    - models/salary/catboost.onnx:
+    - ${CB_ONNX_MODEL_PATH}:
         cache: false

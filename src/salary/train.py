@@ -19,8 +19,9 @@ def cli():
 
 @cli.command("catboost")
 @click.option("--in-train-path", type=click.Path(exists=True, dir_okay=False, readable=True),
-              default=consts.PROCESSED_TRAIN_PATH)
-@click.option("--out-model-path", type=click.Path(dir_okay=False, writable=True), default=consts.CATBOOST_MODEL_PATH)
+              default=consts.CB_PROCESSED_TRAIN_PATH)
+@click.option("--out-model-path", type=click.Path(dir_okay=False, writable=True), default=consts.CB_MODEL_PATH)
+@click.option("--out-params-path", type=click.Path(dir_okay=False, writable=True), default=consts.CB_TRAIN_PARAMS_PATH)
 @click.option("--target", type=str, required=True)
 @click.option("--metric-name", type=str, required=True)
 @click.option("--valid-size", type=click.FloatRange(min=0.0, max=1.0), required=True)
@@ -28,8 +29,8 @@ def cli():
 @click.option("--seed", type=int, required=True)
 @click.option("--n-trials", type=int)
 @click.option("--timeout", type=float)
-def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_name: str, valid_size: float,
-                   early_stopping_rounds: int, seed: int, n_trials: Optional[int] = None,
+def train_catboost(in_train_path: str, out_model_path: str, out_params_path: str, target: str, metric_name: str,
+                   valid_size: float, early_stopping_rounds: int, seed: int, n_trials: Optional[int] = None,
                    timeout: Optional[float] = None) -> None:
     x, y = utils.load_features_target(in_train_path, target=target)
     x_train, x_valid, y_train, y_valid = train_test_split(x, y, test_size=valid_size, shuffle=True, random_state=seed)
@@ -68,7 +69,7 @@ def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_
 
         return metrics[metric_name]
 
-    mlflow.set_experiment("train_catboost")
+    mlflow.set_experiment("salary_catboost")
 
     with mlflow.start_run(run_name=out_model_path):
         study = create_study(sampler=TPESampler(seed=seed), direction="maximize")
@@ -77,9 +78,7 @@ def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_
         regressor = CatBoostRegressor(silent=True, random_seed=seed, **study.best_trial.params)
         regressor.fit(x_train, y_train)
 
-        dir_path = utils.get_dir_path(out_model_path)
-
-        utils.make_dir(dir_path)
+        utils.make_dir(utils.get_dir_path(out_model_path))
         regressor.save_model(out_model_path, format=utils.get_extension(out_model_path))
 
         best_params = study.best_trial.params.copy()
@@ -90,11 +89,11 @@ def train_catboost(in_train_path: str, out_model_path: str, target: str, metric_
             "early_stopping_rounds": early_stopping_rounds,
             "seed": seed
         })
-        utils.save_params(f"{dir_path}/params.json", params=best_params)
+
+        utils.save_params(best_params, path=out_params_path)
+        mlflow.log_params(best_params)
 
         pred = regressor.predict(x_valid)
-
-        mlflow.log_params(best_params)
         mlflow.log_metrics(utils.eval_metrics(y_valid, pred))
 
         signature = infer_signature(x_valid, pred)

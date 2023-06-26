@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Optional
 from pathlib import Path
 import json
 
@@ -47,7 +47,7 @@ def load_features_target(path: str, target: str) -> (DataFrame, Series):
     return data, y
 
 
-def save_metrics(path: str, metrics: dict[str, float]) -> None:
+def save_metrics(metrics: dict[str, float], path: str) -> None:
     with open(path, "w") as f:
         json.dump(metrics, f)
 
@@ -57,17 +57,25 @@ def load_metrics(path: str) -> dict[str, float]:
         return json.load(f)
 
 
-def eval_metrics(y_true: Any, y_pred: Any) -> dict[str, float]:
+def eval_metrics(y_true: Any, y_pred: Any, names: Optional[list[str]] = None) -> dict[str, float]:
+    if names is None:
+        names = ["r2", "mae"]
+
     metrics = {
-        "r2": r2_score(y_true, y_pred),
-        "mae": mean_absolute_error(y_true, y_pred)
+        "r2": r2_score,
+        "mae": mean_absolute_error
     }
-    return metrics
+    return {name: metrics[name](y_true, y_pred) for name in names}
 
 
-def save_params(path: str, params: dict) -> None:
+def save_params(params: dict, path: str) -> None:
     with open(path, "w") as f:
         json.dump(params, f)
+
+
+def load_params(path: str) -> Any:
+    with open(path, "r") as f:
+        return json.load(f)
 
 
 def make_dir(dir_path: str) -> Path:

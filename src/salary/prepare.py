@@ -12,14 +12,12 @@ from . import consts, utils
 @click.command()
 @click.option("--in-dir", type=click.Path(exists=True, file_okay=False, readable=True), default=consts.RAW_DIR)
 @click.option("--in-filename-suffix", type=str, default=consts.RAW_FILENAME_SUFFIX)
-@click.option("--out-train-path", type=click.Path(dir_okay=False), default=consts.PREPARED_TRAIN_PATH)
-@click.option("--out-test-path", type=click.Path(dir_okay=False), default=consts.PREPARED_TEST_PATH)
+@click.option("--out-train-path", type=click.Path(dir_okay=False), required=True)
+@click.option("--out-test-path", type=click.Path(dir_okay=False), required=True)
 @click.option("--test-size", type=click.FloatRange(min=0.0, max=1.0), required=True)
 @click.option("--seed", type=int, required=True)
 def prepare(in_dir: str, in_filename_suffix: str, out_train_path: str, out_test_path: str, test_size: float,
             seed: Any = None) -> None:
-    # TODO: get raw data from dvc remote
-
     dataset = load_dataset(in_dir, in_filename_suffix)
     dataset.columns = utils.fix_column_names(dataset.columns.values)
 

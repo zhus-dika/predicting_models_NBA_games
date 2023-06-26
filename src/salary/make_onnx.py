@@ -19,14 +19,14 @@ def cli():
 
 @cli.command("catboost")
 @click.option("--in-preprocessor-path", type=click.Path(exists=True, dir_okay=False, readable=True),
-              default=consts.PREPROCESSOR_PATH)
+              default=consts.CB_PREPROCESSOR_PATH)
 @click.option("--in-model-path", type=click.Path(exists=True, dir_okay=False, readable=True),
-              default=consts.CATBOOST_MODEL_PATH)
+              default=consts.CB_MODEL_PATH)
 @click.option("--in-data-path", type=click.Path(exists=True, dir_okay=False, readable=True),
-              default=consts.PREPARED_TEST_PATH)
+              default=consts.CB_PREPARED_TEST_PATH)
 @click.option("--in-metrics-path", type=click.Path(exists=True, dir_okay=False, readable=True),
-              default=consts.CATBOOST_METRICS_PATH)
-@click.option("--out-onnx-path", type=click.Path(dir_okay=False), default=consts.CATBOOST_ONNX_MODEL_PATH)
+              default=consts.CB_METRICS_PATH)
+@click.option("--out-onnx-path", type=click.Path(dir_okay=False), default=consts.CB_ONNX_MODEL_PATH)
 @click.option("--target", type=str, required=True)
 def catboost_to_onnx(in_preprocessor_path: str, in_model_path: str, in_data_path: str, in_metrics_path: str,
                      out_onnx_path: str, target: str) -> None:
