@@ -10,9 +10,13 @@ def config() -> Preprocessing:
     return Preprocessing()
 
 
-def test_prepared_train_test(config: Preprocessing):
-    train = utils.load_data(consts.PREPARED_TRAIN_PATH)
-    test = utils.load_data(consts.PREPARED_TEST_PATH)
+@pytest.mark.parametrize("train_path,test_path", [
+    (consts.CB_PREPARED_TRAIN_PATH, consts.CB_PREPARED_TEST_PATH),
+    (consts.NET_PREPARED_TRAIN_PATH, consts.NET_PREPARED_TEST_PATH)
+])
+def test_prepared_train_test(config: Preprocessing, train_path: str, test_path: str):
+    train = utils.load_data(train_path)
+    test = utils.load_data(test_path)
 
     assert all(train.columns == test.columns)
 
