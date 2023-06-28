@@ -1,0 +1,6 @@
+outs:
+- md5: 97f2c483556f6f4d761b6ebd769294f4.dir
+  size: 2902566
+  nfiles: 13
+  hash: md5
+  path: advanced_plus_totals

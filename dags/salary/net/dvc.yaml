@@ -1,0 +1,88 @@
+vars:
+- wd: ../../..
+- ../../../src/salary/consts.py
+- ../../../src/salary/params.py
+
+stages:
+  prepare:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.prepare
+      --out-train-path ${NET_PREPARED_TRAIN_PATH}
+      --out-test-path ${NET_PREPARED_TEST_PATH}
+      --test-size ${Preprocessing.test_size}
+      --seed ${Base.seed}
+    deps:
+    - ${RAW_DIR}
+    - src/salary/consts.py
+    - src/salary/prepare.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.seed
+      - Preprocessing.test_size
+    outs:
+    - ${NET_PREPARED_TRAIN_PATH}:
+        cache: false
+    - ${NET_PREPARED_TEST_PATH}:
+        cache: false
+  preprocess:
+    wdir: ${wd}
+    cmd: python -m src.salary.preprocess net
+    deps:
+    - ${NET_PREPARED_TRAIN_PATH}
+    - ${NET_PREPARED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/preprocess.py
+    - src/salary/params.py
+    - src/salary/utils.py
+    outs:
+    - ${NET_PROCESSED_TRAIN_PATH}:
+        cache: false
+    - ${NET_PROCESSED_TEST_PATH}:
+        cache: false
+    - ${NET_FEATURES_PREPROCESSOR_PATH}:
+        cache: false
+    - ${NET_TARGET_PREPROCESSOR_PATH}:
+        cache: false
+  train:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.train_net
+      --target ${Base.target}
+      --seed ${Base.seed}
+      --metric-name ${Net.metric_name}
+      --valid-size ${Net.valid_size}
+      --batch-size ${Net.batch_size}
+      --width ${Net.width}
+      --dropout ${Net.dropout}
+      --n-epochs ${Net.n_epochs}
+    deps:
+    - ${NET_PROCESSED_TRAIN_PATH}
+    - ${NET_PROCESSED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/train.py
+    - src/salary/utils.py
+    - src/salary/net.py
+    outs:
+    - ${NET_MODEL_PATH}:
+        cache: false
+    - ${NET_TRAIN_PARAMS_PATH}:
+        cache: false
+  evaluate:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.evaluate net
+      --target ${Base.target}
+    deps:
+    - ${NET_MODEL_PATH}
+    - ${NET_PROCESSED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/evaluate.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - ${NET_METRICS_PATH}:
+        cache: false

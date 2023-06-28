@@ -1,0 +1,111 @@
+vars:
+- wd: ../../..
+- ../../../src/salary/consts.py
+- ../../../src/salary/params.py
+
+stages:
+  prepare:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.prepare
+      --out-train-path ${CB_PREPARED_TRAIN_PATH}
+      --out-test-path ${CB_PREPARED_TEST_PATH}
+      --test-size ${Preprocessing.test_size}
+      --seed ${Base.seed}
+    deps:
+    - ${RAW_DIR}
+    - src/salary/consts.py
+    - src/salary/prepare.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.seed
+      - Preprocessing.test_size
+    outs:
+    - ${CB_PREPARED_TRAIN_PATH}:
+        cache: false
+    - ${CB_PREPARED_TEST_PATH}:
+        cache: false
+  preprocess:
+    wdir: ${wd}
+    cmd: python -m src.salary.preprocess catboost
+    deps:
+    - ${CB_PREPARED_TRAIN_PATH}
+    - ${CB_PREPARED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/preprocess.py
+    - src/salary/params.py
+    - src/salary/utils.py
+    outs:
+    - ${CB_PROCESSED_TRAIN_PATH}:
+        cache: false
+    - ${CB_PROCESSED_TEST_PATH}:
+        cache: false
+    - ${CB_PREPROCESSOR_PATH}:
+        cache: false
+  train:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.train catboost
+      --target ${Base.target}
+      --seed ${Base.seed}
+      --metric-name ${Catboost.metric_name}
+      --valid-size ${Catboost.valid_size}
+      --early-stopping-rounds ${Catboost.early_stopping_rounds}
+      --n-trials ${Catboost.n_trials}
+      --timeout ${Catboost.timeout}
+    deps:
+    - ${CB_PROCESSED_TRAIN_PATH}
+    - ${CB_PROCESSED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/train.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+      - Base.seed
+      - Catboost.metric_name
+      - Catboost.valid_size
+      - Catboost.early_stopping_rounds
+      - Catboost.n_trials
+      - Catboost.timeout
+    outs:
+    - ${CB_MODEL_PATH}:
+        cache: false
+    - ${CB_TRAIN_PARAMS_PATH}:
+        cache: false
+  evaluate:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.evaluate catboost
+      --target ${Base.target}
+    deps:
+    - ${CB_MODEL_PATH}
+    - ${CB_PROCESSED_TEST_PATH}
+    - src/salary/consts.py
+    - src/salary/evaluate.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - ${CB_METRICS_PATH}:
+        cache: false
+  make_onnx:
+    wdir: ${wd}
+    cmd: >-
+      python -m src.salary.make_onnx catboost
+      --target ${Base.target}
+    deps:
+    - ${CB_PREPROCESSOR_PATH}
+    - ${INTERIM_DIR}
+    - ${CB_MODEL_PATH}
+    - src/salary/make_onnx.py
+    - src/salary/consts.py
+    - src/salary/utils.py
+    params:
+    - src/salary/params.py:
+      - Base.target
+    outs:
+    - ${CB_ONNX_MODEL_PATH}:
+        cache: false

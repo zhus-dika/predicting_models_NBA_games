@@ -1,0 +1,6 @@
+.idea/
+.ipynb_checkpoints
+catboost_info/
+__pycache__/
+mlruns/
+mlartifacts/

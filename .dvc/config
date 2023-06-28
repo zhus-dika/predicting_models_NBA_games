@@ -1,0 +1,8 @@
+[core]
+    analytics = false
+    remote = predicting_models_nba_games
+[cache]
+    type = "reflink,hardlink,symlink,copy"
+['remote "predicting_models_nba_games"']
+    url = gdrive://1YU4Yk58XTuKvIpz-hM2TcBifXkv1SdNd
+    gdrive_acknowledge_abuse = true
