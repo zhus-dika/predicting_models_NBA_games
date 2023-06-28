@@ -3,7 +3,7 @@ RUN apt-get -y update && apt-get -y install git
 RUN pip install --no-cache-dir poetry==1.5.1
 WORKDIR nba
 COPY poetry.lock pyproject.toml ./
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-directory --no-cache
+RUN poetry config virtualenvs.create false && poetry install --no-root --no-directory --no-cache --without dev
 COPY src/app/ src/app/
 COPY src/salary/ src/salary/
 RUN poetry check && poetry install --no-interaction --no-cache --compile --without dev
