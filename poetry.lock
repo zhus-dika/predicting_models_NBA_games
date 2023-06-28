@@ -2294,6 +2294,17 @@ test = ["pytest (<7.1)", "pytest-asyncio", "testpath"]
 test-extra = ["curio", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.21)", "pandas", "pytest (<7.1)", "pytest-asyncio", "testpath", "trio"]
 
 [[package]]
+name = "ipython-genutils"
+version = "0.2.0"
+description = "Vestigial utilities from IPython"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ipython_genutils-0.2.0-py2.py3-none-any.whl", hash = "sha256:72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8"},
+    {file = "ipython_genutils-0.2.0.tar.gz", hash = "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"},
+]
+
+[[package]]
 name = "isoduration"
 version = "20.11.0"
 description = "Operations with ISO 8601 durations"
@@ -3168,6 +3179,41 @@ files = [
 ]
 
 [[package]]
+name = "nbclassic"
+version = "1.0.0"
+description = "Jupyter Notebook as a Jupyter Server extension."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "nbclassic-1.0.0-py3-none-any.whl", hash = "sha256:f99e4769b4750076cd4235c044b61232110733322384a94a63791d2e7beacc66"},
+    {file = "nbclassic-1.0.0.tar.gz", hash = "sha256:0ae11eb2319455d805596bf320336cda9554b41d99ab9a3c31bf8180bffa30e3"},
+]
+
+[package.dependencies]
+argon2-cffi = "*"
+ipykernel = "*"
+ipython-genutils = "*"
+jinja2 = "*"
+jupyter-client = ">=6.1.1"
+jupyter-core = ">=4.6.1"
+jupyter-server = ">=1.8"
+nbconvert = ">=5"
+nbformat = "*"
+nest-asyncio = ">=1.5"
+notebook-shim = ">=0.2.3"
+prometheus-client = "*"
+pyzmq = ">=17"
+Send2Trash = ">=1.8.0"
+terminado = ">=0.8.3"
+tornado = ">=6.1"
+traitlets = ">=4.2.1"
+
+[package.extras]
+docs = ["myst-parser", "nbsphinx", "sphinx", "sphinx-rtd-theme", "sphinxcontrib-github-alt"]
+json-logging = ["json-logging"]
+test = ["coverage", "nbval", "pytest", "pytest-cov", "pytest-jupyter", "pytest-playwright", "pytest-tornasync", "requests", "requests-unixsocket", "testpath"]
+
+[[package]]
 name = "nbclient"
 version = "0.8.0"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
@@ -3289,6 +3335,40 @@ files = [
 
 [package.dependencies]
 setuptools = "*"
+
+[[package]]
+name = "notebook"
+version = "6.5.4"
+description = "A web-based notebook environment for interactive computing"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "notebook-6.5.4-py3-none-any.whl", hash = "sha256:dd17e78aefe64c768737b32bf171c1c766666a21cc79a44d37a1700771cab56f"},
+    {file = "notebook-6.5.4.tar.gz", hash = "sha256:517209568bd47261e2def27a140e97d49070602eea0d226a696f42a7f16c9a4e"},
+]
+
+[package.dependencies]
+argon2-cffi = "*"
+ipykernel = "*"
+ipython-genutils = "*"
+jinja2 = "*"
+jupyter-client = ">=5.3.4"
+jupyter-core = ">=4.6.1"
+nbclassic = ">=0.4.7"
+nbconvert = ">=5"
+nbformat = "*"
+nest-asyncio = ">=1.5"
+prometheus-client = "*"
+pyzmq = ">=17"
+Send2Trash = ">=1.8.0"
+terminado = ">=0.8.3"
+tornado = ">=6.1"
+traitlets = ">=4.2.1"
+
+[package.extras]
+docs = ["myst-parser", "nbsphinx", "sphinx", "sphinx-rtd-theme", "sphinxcontrib-github-alt"]
+json-logging = ["json-logging"]
+test = ["coverage", "nbval", "pytest", "pytest-cov", "requests", "requests-unixsocket", "selenium (==4.1.5)", "testpath"]
 
 [[package]]
 name = "notebook-shim"
@@ -4202,6 +4282,16 @@ crypto = ["cryptography (>=3.4.0)"]
 dev = ["coverage[toml] (==5.0.4)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=6.0.0,<7.0.0)", "sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
 docs = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
+
+[[package]]
+name = "pylzma"
+version = "0.5.0"
+description = "Python bindings for the LZMA library by Igor Pavlov."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pylzma-0.5.0.tar.gz", hash = "sha256:b874172afbf37770e643bf2dc9d9b6b03eb95d8f8162e157145b3fe9e1b68a1c"},
+]
 
 [[package]]
 name = "pyopenssl"
@@ -5564,4 +5654,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.4"
-content-hash = "934ff03c43b9f2a04a8535bde6ad3ce1301dc1150f939ed490d1bf3ac6b28384"
+content-hash = "f520938e8fcd6ac717b6cd513a93d179a409549f59151c63cad1c3a69ec18a1b"

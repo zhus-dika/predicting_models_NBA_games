@@ -3,6 +3,7 @@ from typing import Any, Optional
 from pathlib import Path
 import json
 
+import numpy
 from pandas import DataFrame, Series, read_csv
 import joblib
 from catboost.utils import convert_to_onnx_object
@@ -36,8 +37,17 @@ def save_data(data: DataFrame, path: str, index: bool = False) -> None:
     data.to_csv(path, index=index)
 
 
-def load_data(path: str) -> DataFrame:
-    return read_csv(path)
+def load_data(path: str, numeric32: bool = False) -> DataFrame:
+    data = read_csv(path)
+
+    if numeric32:
+        dtypes = {col: numpy.int32 for col in data.select_dtypes(numpy.int64).columns}
+        dtypes.update({col: numpy.float32 for col in data.select_dtypes(numpy.float64).columns})
+
+        if len(dtypes) > 0:
+            data = data.astype(dtype=dtypes, copy=False)
+
+    return data
 
 
 def load_features_target(path: str, target: str) -> (DataFrame, Series):
